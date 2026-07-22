@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Exhibition | كتالوج الأثاث</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>الأثاث العصري | كتالوج الأثاث</title>
+    <link rel="stylesheet" href="css/style.css" />
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -43,17 +43,26 @@
 </head>
 <body>
 
+    <!-- ===== الشريط العلوي ===== -->
+    <div class="top-bar">
+        <div class="container top-bar-inner">
+            <span>مرحباً بكم في الأثاث العصري</span>
+            <span>سوريا - دير الزور - صبيخان</span>
+        </div>
+    </div>
+
+    <!-- ===== الهيدر ===== -->
     <header class="header">
         <div class="container header-inner">
             <div class="logo">
-                <img src="https://images.unsplash.com/photo-1505993597083-3f3e1bbf4f0c?w=80&h=80&fit=crop" alt="جسر دير الزور المعلق" style="width:55px;height:55px;border-radius:50%;object-fit:cover;border:2px solid #D4A85C;">
+                <img src="https://images.unsplash.com/photo-1505993597083-3f3e1bbf4f0c?w=80&h=80&fit=crop" alt="جسر دير الزور" />
                 <div>
-                    <h1>Modern Exhibition</h1>
+                    <h1>الأثاث العصري</h1>
                     <p>كتالوج الأثاث والألمنيوم الفاخر</p>
                 </div>
             </div>
             <div class="header-search">
-                <input type="text" id="globalSearch" placeholder="ابحث عن منتج..." oninput="globalSearch()">
+                <input type="text" id="globalSearch" placeholder="ابحث عن منتج..." oninput="globalSearch()" />
                 <button class="btn-search" onclick="globalSearch()">بحث</button>
             </div>
             <nav>
@@ -62,18 +71,59 @@
                 <a href="#" id="addProductNav" onclick="showAddProduct()" style="display:none;">إضافة</a>
                 <a href="#" onclick="showFeatured()">مميزات</a>
             </nav>
+            <button class="menu-toggle" onclick="toggleMobile()">☰</button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="#" onclick="showHome()">الرئيسية</a>
+            <a href="#" onclick="showProducts()">المنتجات</a>
+            <a href="#" onclick="showAddProduct()">إضافة</a>
+            <a href="#" onclick="showFeatured()">مميزات</a>
         </div>
     </header>
 
+    <!-- ===== الأيقونات السريعة (مثل سوق دير الزور) ===== -->
+    <section class="quick-icons">
+        <div class="container">
+            <div class="quick-icons-grid">
+                <div class="quick-icon" onclick="filterByCategory('أبواب')">
+                    <span class="qi-icon">🚪</span>
+                    <span>أبواب</span>
+                </div>
+                <div class="quick-icon" onclick="filterByCategory('شبابيك')">
+                    <span class="qi-icon">🪟</span>
+                    <span>شبابيك</span>
+                </div>
+                <div class="quick-icon" onclick="filterByCategory('غرف نوم')">
+                    <span class="qi-icon">🛏️</span>
+                    <span>غرف نوم</span>
+                </div>
+                <div class="quick-icon" onclick="filterByCategory('مطابخ')">
+                    <span class="qi-icon">🍳</span>
+                    <span>مطابخ</span>
+                </div>
+                <div class="quick-icon" onclick="filterByCategory('ألمنيوم')">
+                    <span class="qi-icon">🔩</span>
+                    <span>ألمنيوم</span>
+                </div>
+                <div class="quick-icon" onclick="filterByCategory('ديكورات')">
+                    <span class="qi-icon">🎨</span>
+                    <span>ديكورات</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== المحتوى الرئيسي ===== -->
     <main class="container" id="mainContent" style="min-height:60vh;padding:20px 0;"></main>
 
+    <!-- ===== الفوتر ===== -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
                 <div>
-                    <h4>Modern Exhibition</h4>
+                    <h4>الأثاث العصري</h4>
                     <p>كتالوج معرض متخصص في الأثاث والألمنيوم الفاخر</p>
-                    <p style="margin-top:8px;color:#D4A85C;">سوريا - دير الزور - صبيخان</p>
+                    <p style="color:var(--gold);">سوريا - دير الزور - صبيخان</p>
                 </div>
                 <div>
                     <h4>روابط سريعة</h4>
@@ -84,12 +134,13 @@
                 <div>
                     <h4>معلومات</h4>
                     <p>سوريا - دير الزور - صبيخان</p>
-                    <p><a href="mailto:hg78@live.com" style="color:#D4A85C;">hg78@live.com</a></p>
-                    <p><a href="tel:+963996190945" style="color:#D4A85C;">+963 996 190 945</a></p>
+                    <p><a href="mailto:hg78@live.com">hg78@live.com</a></p>
+                    <p><a href="tel:+963996190945">+963 996 190 945</a></p>
+                    <p style="color:var(--gold);margin-top:8px;font-weight:600;">أحمد العبدالله</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>2025 Modern Exhibition - جميع الحقوق محفوظة</p>
+                <p>2025 الأثاث العصري - جميع الحقوق محفوظة</p>
             </div>
         </div>
     </footer>
