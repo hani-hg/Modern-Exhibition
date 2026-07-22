@@ -42,7 +42,8 @@ function showModal(title, content, onConfirm = null) {
     modal.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
             <h2 style="color:var(--brown);margin:0;">${title}</h2>
-            <button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;">✕</button>
+            <button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;transition:0.3s;" 
+                    onmouseover="this.style.color='#333'" onmouseout="this.style.color='#999'">✕</button>
         </div>
         <div>${content}</div>
         <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
@@ -65,7 +66,7 @@ function closeModal() {
 function confirmDelete(message, onConfirm) {
     showModal(
         '🗑️ تأكيد الحذف',
-        `<p style="color:#555;">${message}</p>`,
+        `<p style="color:#555;font-size:16px;">${message}</p>`,
         onConfirm
     );
 }
@@ -73,29 +74,38 @@ function confirmDelete(message, onConfirm) {
 // ===== نافذة عرض السعر =====
 function showQuoteModal(product, onSend) {
     const content = `
-        <form id="quoteForm">
+        <form id="quoteForm" style="direction:rtl;">
             <div style="margin-bottom:15px;">
-                <label style="display:block;font-weight:bold;margin-bottom:5px;">اسمك *</label>
-                <input type="text" id="quoteName" required style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;">
+                <label style="display:block;font-weight:600;margin-bottom:5px;color:var(--brown);">اسمك *</label>
+                <input type="text" id="quoteName" required 
+                       style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:10px;font-size:16px;">
             </div>
             <div style="margin-bottom:15px;">
-                <label style="display:block;font-weight:bold;margin-bottom:5px;">رقم الهاتف *</label>
-                <input type="tel" id="quotePhone" required style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;">
+                <label style="display:block;font-weight:600;margin-bottom:5px;color:var(--brown);">رقم الهاتف *</label>
+                <input type="tel" id="quotePhone" required 
+                       style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:10px;font-size:16px;">
             </div>
             <div style="margin-bottom:15px;">
-                <label style="display:block;font-weight:bold;margin-bottom:5px;">رسالة</label>
-                <textarea id="quoteMessage" rows="3" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;resize:vertical;">أريد عرض سعر لمنتج: ${product.title}</textarea>
+                <label style="display:block;font-weight:600;margin-bottom:5px;color:var(--brown);">رسالة</label>
+                <textarea id="quoteMessage" rows="3" 
+                          style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:10px;font-size:16px;resize:vertical;font-family:inherit;">
+أريد عرض سعر لمنتج: ${product.title} ($${product.price})
+                </textarea>
             </div>
         </form>
     `;
     
     showModal('📞 طلب عرض سعر', content, () => {
-        const name = document.getElementById('quoteName').value;
-        const phone = document.getElementById('quotePhone').value;
-        const message = document.getElementById('quoteMessage').value;
+        const name = document.getElementById('quoteName').value.trim();
+        const phone = document.getElementById('quotePhone').value.trim();
+        const message = document.getElementById('quoteMessage').value.trim();
         
-        if (!name || !phone) {
-            showToast('❌ يرجى تعبئة جميع الحقول المطلوبة', 'error');
+        if (!name) {
+            showToast('❌ يرجى إدخال اسمك', 'error');
+            return;
+        }
+        if (!phone) {
+            showToast('❌ يرجى إدخال رقم الهاتف', 'error');
             return;
         }
         
@@ -108,4 +118,24 @@ const style = document.createElement('style');
 style.textContent = `
     @keyframes fadeIn {
         from { opacity: 0; }
-        to { opacity:
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// تصدير للاستخدام العالمي
+window.showModal = showModal;
+window.closeModal = closeModal;
+window.confirmDelete = confirmDelete;
+window.showQuoteModal = showQuoteModal;
