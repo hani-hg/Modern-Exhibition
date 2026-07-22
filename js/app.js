@@ -239,7 +239,7 @@ function showAddProduct() {
 
         const widget = window.cloudinary.createUploadWidget(
             {
-                cloudName: 'YOUR_CLOUD_NAME', // ⚠️ استبدل باسم السحابة الخاص بك
+                cloudName: 'dzjy5tubx', // ⚠️ استبدل باسم السحابة الخاص بك
                 uploadPreset: 'products',     // اسم الـ Preset الذي أنشأته
                 multiple: true,
                 maxFiles: 5,
