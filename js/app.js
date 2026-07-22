@@ -7,7 +7,7 @@ let uploadedUrls = [];
 function checkAdmin() {
     if (!isAdmin) {
         const pass = prompt('ادخل كلمة المرور للمالك:');
-        if (pass === 'admin123') {
+        if (pass === 'احمد123') {
             isAdmin = true;
             document.getElementById('addProductNav').style.display = 'inline-block';
             showToast('مرحباً أيها المالك', 'success');
@@ -43,8 +43,6 @@ async function showHome() {
             ${featuredItems.length ? `<h2 style="color:var(--primary);margin:20px 0 10px;">مميزات</h2><div class="products-grid">${renderCards(featuredItems)}</div>` : ''}
             <h2 style="color:var(--primary);margin:30px 0 10px;">آخر المنتجات</h2>
             <div class="products-grid">${renderCards(latest)}</div>
-            <h2 style="color:var(--primary);margin:30px 0 10px;">التصنيفات</h2>
-            <div class="categories-grid">${renderCategories()}</div>
         `;
         content.innerHTML = html;
         animateCards();
@@ -73,19 +71,6 @@ function renderCards(products) {
             </div>
         </div>
     `).join('');
-}
-
-function renderCategories() {
-    const cats = ['أبواب', 'شبابيك', 'غرف نوم', 'مطابخ', 'ألمنيوم', 'ديكورات'];
-    const icons = ['A', 'B', 'C', 'D', 'E', 'F'];
-    return cats.map((cat, i) => {
-        const count = allProducts.filter(p => p.category === cat).length;
-        return `<div class="cat-card" onclick="filterByCategory('${cat}')">
-            <div class="cat-icon">${icons[i]}</div>
-            <h4>${cat}</h4>
-            <p>${count} منتج</p>
-        </div>`;
-    }).join('');
 }
 
 function filterByCategory(cat) { currentFilter = cat; showProducts(); }
@@ -196,7 +181,7 @@ function showAddProduct() {
                         const img = document.createElement('img');
                         img.src = url;
                         img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover';
-                        img.style.borderRadius = '10px'; img.style.border = '2px solid #D4A85C';
+                        img.style.borderRadius = '10px'; img.style.border = '2px solid #C9A96E';
                         preview.appendChild(img);
                         showToast('تم رفع الصورة', 'success');
                     }
@@ -272,7 +257,7 @@ async function showDetail(id) {
             </div>
             <div class="detail-info">
                 <h1>${p.title}</h1>
-                ${p.brand ? `<p style="color:var(--secondary);font-size:18px;">${p.brand}</p>` : ''}
+                ${p.brand ? `<p style="color:var(--gold);font-size:18px;">${p.brand}</p>` : ''}
                 <p class="detail-price">$${p.price} <small style="font-size:16px;color:#888;">${p.currency || 'USD'}</small></p>
                 <div class="detail-meta">
                     ${p.category ? `<span>${p.category}</span>` : ''}
@@ -334,7 +319,7 @@ async function loadProductData(id) {
             const img = document.createElement('img');
             img.src = url;
             img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover';
-            img.style.borderRadius = '10px'; img.style.border = '2px solid #D4A85C';
+            img.style.borderRadius = '10px'; img.style.border = '2px solid #C9A96E';
             preview.appendChild(img);
         });
     }
@@ -349,6 +334,10 @@ function globalSearch() {
     animateCards();
 }
 
+function toggleMobile() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+}
+
 document.addEventListener('DOMContentLoaded', showHome);
 window.showHome = showHome;
 window.showProducts = showProducts;
@@ -360,3 +349,4 @@ window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 window.filterByCategory = filterByCategory;
 window.globalSearch = globalSearch;
+window.toggleMobile = toggleMobile;
