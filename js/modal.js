@@ -1,6 +1,3 @@
-// js/modal.js
-
-// ===== عرض نافذة طلب عرض السعر =====
 function showQuoteModal(product, onSend) {
     const existing = document.querySelector('.modal-overlay');
     if (existing) existing.remove();
@@ -10,7 +7,7 @@ function showQuoteModal(product, onSend) {
 
     overlay.innerHTML = `
         <div class="modal-box">
-            <h2>📞 طلب عرض سعر</h2>
+            <h2>طلب عرض سعر</h2>
             <form id="quoteForm">
                 <div class="form-group">
                     <label>اسمك *</label>
@@ -40,20 +37,18 @@ function showQuoteModal(product, onSend) {
         const phone = document.getElementById('quotePhone').value.trim();
         const message = document.getElementById('quoteMessage').value.trim();
 
-        if (!name) { showToast('❌ يرجى إدخال اسمك', 'error'); return; }
-        if (!phone) { showToast('❌ يرجى إدخال رقم الهاتف', 'error'); return; }
+        if (!name) { showToast('يرجى إدخال اسمك', 'error'); return; }
+        if (!phone) { showToast('يرجى إدخال رقم الهاتف', 'error'); return; }
 
         onSend({ name, phone, message });
         closeModal();
     });
 }
 
-// ===== إغلاق النافذة =====
 function closeModal() {
     const overlay = document.querySelector('.modal-overlay');
     if (overlay) overlay.remove();
 }
 
-// تصدير للاستخدام العالمي
 window.showQuoteModal = showQuoteModal;
 window.closeModal = closeModal;
