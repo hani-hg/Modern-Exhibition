@@ -1,5 +1,3 @@
-// js/toast.js
-
 function showToast(message, type = 'info') {
     const existing = document.querySelector('.toast');
     if (existing) existing.remove();
