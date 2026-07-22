@@ -1,4 +1,3 @@
-/* ===== الألوان ===== */
 :root {
     --primary: #4A2C1B;
     --secondary: #D4A85C;
@@ -21,7 +20,6 @@ body {
 
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-/* ===== HEADER ===== */
 .header {
     background: var(--primary);
     padding: 12px 0;
@@ -110,7 +108,6 @@ nav a:hover {
     color: #fff;
 }
 
-/* ===== STATS ===== */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -131,7 +128,6 @@ nav a:hover {
 .stat-box h3 { font-size: 30px; color: var(--secondary); font-weight: 800; }
 .stat-box p { color: var(--text); font-weight: 600; font-size: 14px; margin-top: 2px; }
 
-/* ===== CATEGORIES ===== */
 .categories-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -176,7 +172,6 @@ nav a:hover {
 .cat-card h4 { color: var(--primary); font-size: 15px; margin-bottom: 2px; }
 .cat-card p { color: #999; font-size: 13px; }
 
-/* ===== PRODUCT GRID ===== */
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -234,7 +229,6 @@ nav a:hover {
     font-weight: 500;
 }
 
-/* ===== تكبير أزرار طلب عرض سعر ===== */
 .btn-quote {
     width: 100%;
     padding: 16px;
@@ -249,7 +243,6 @@ nav a:hover {
 }
 .btn-quote:hover { transform: scale(1.02); box-shadow: 0 8px 24px rgba(34,197,94,0.25); }
 
-/* ===== DETAIL PAGE ===== */
 .product-detail {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -287,7 +280,6 @@ nav a:hover {
 .btn-gold { background: var(--secondary); color: var(--primary); }
 .btn-gold:hover { background: #c49a4a; }
 
-/* ===== FORM ===== */
 .form-container { max-width: 700px; margin: 30px auto; background: var(--card); padding: 32px; border-radius: var(--radius); box-shadow: var(--shadow); }
 .form-container h2 { color: var(--primary); text-align: center; margin-bottom: 28px; }
 .form-group { margin-bottom: 18px; }
@@ -306,7 +298,6 @@ nav a:hover {
 .btn-cancel { background: #e5e7eb; color: #555; }
 .btn-cancel:hover { background: #d1d5db; }
 
-/* ===== MODAL (طلب عرض سعر) ===== */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -404,7 +395,6 @@ nav a:hover {
     background: #d1d5db;
 }
 
-/* ===== FOOTER ===== */
 .footer { background: var(--primary); color: #fff; padding: 32px 0 16px; margin-top: 40px; border-top: 4px solid var(--secondary); }
 .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; }
 .footer-grid h4 { color: var(--secondary); margin-bottom: 12px; }
@@ -421,7 +411,6 @@ nav a:hover {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .header-inner { flex-direction: column; align-items: stretch; }
     .header-search { max-width: 100%; }
