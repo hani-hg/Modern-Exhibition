@@ -1,42 +1,18 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="theme-color" content="#5D4037" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <title>Modern Exhibition | كتالوج الأثاث الفاخر</title>
-    <meta name="description" content="كتالوج معرض متخصص في الأثاث والألمنيوم الفاخر" />
-    <link rel="icon" href="favicon.svg" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="stylesheet" href="css/style.css" />
-
-    <!-- Firebase (ES Modules) -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Exhibition | كتالوج الأثاث</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import {
-            getFirestore,
-            collection,
-            addDoc,
-            getDocs,
-            doc,
-            getDoc,
-            updateDoc,
-            deleteDoc,
-            query,
-            orderBy,
-            limit,
-            where
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-        import {
-            getStorage,
-            ref,
-            uploadBytes,
-            getDownloadURL
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
 
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
+            apiKey: "AIzaSyDagDhybZwbnKOvnLBBARMX9-ErLw964Mo",
             authDomain: "modern-exhibition.firebaseapp.com",
             projectId: "modern-exhibition",
             storageBucket: "modern-exhibition.firebasestorage.app",
@@ -59,84 +35,56 @@
         window.deleteDoc = deleteDoc;
         window.query = query;
         window.orderBy = orderBy;
-        window.limit = limit;
         window.where = where;
         window.ref = ref;
         window.uploadBytes = uploadBytes;
         window.getDownloadURL = getDownloadURL;
-
-        console.log("✅ Firebase initialized");
+        console.log("✅ Firebase Ready");
     </script>
 </head>
 <body>
 
-    <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="container header-inner">
             <div class="logo">
-                <span class="logo-icon">🏛️</span>
-                <div>
-                    <h1>Modern Exhibition</h1>
-                    <p>كتالوج الأثاث والألمنيوم الفاخر</p>
-                </div>
+                <h1>🏛️ Modern Exhibition</h1>
+                <p>كتالوج الأثاث والألمنيوم الفاخر</p>
             </div>
-
             <div class="header-search">
-                <input type="text" id="globalSearch" placeholder="🔍 ابحث عن منتج..." oninput="globalSearch()" />
+                <input type="text" id="globalSearch" placeholder="🔍 ابحث عن منتج..." oninput="globalSearch()">
                 <button class="btn-search" onclick="globalSearch()">بحث</button>
             </div>
-
             <nav>
-                <a href="#" onclick="showHome()" class="active">🏠 الرئيسية</a>
+                <a href="#" onclick="showHome()">🏠 الرئيسية</a>
                 <a href="#" onclick="showProducts()">📦 المنتجات</a>
-                <a href="#" onclick="showAddProduct()" class="nav-cta">➕ إضافة</a>
+                <a href="#" id="addProductNav" onclick="showAddProduct()" style="display:none;">➕ إضافة</a>
                 <a href="#" onclick="showFeatured()">⭐ مميزات</a>
             </nav>
-
-            <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
-        </div>
-        <!-- القائمة الجانبية للجوال -->
-        <div class="mobile-menu" id="mobileMenu">
-            <a href="#" onclick="showHome()">🏠 الرئيسية</a>
-            <a href="#" onclick="showProducts()">📦 المنتجات</a>
-            <a href="#" onclick="showAddProduct()">➕ إضافة منتج</a>
-            <a href="#" onclick="showFeatured()">⭐ مميزات</a>
         </div>
     </header>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <main class="bg-pattern" id="content">
-        <div class="container" id="mainContent">
-            <!-- سيتم تحميل المحتوى ديناميكياً -->
-        </div>
+    <main class="container" id="mainContent" style="min-height:60vh;padding:20px 0;">
+        <!-- سيتم تحميل المحتوى هنا -->
     </main>
 
-    <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
                 <div>
                     <h4>🏛️ Modern Exhibition</h4>
                     <p>كتالوج معرض متخصص في الأثاث والألمنيوم الفاخر</p>
-                    <div class="footer-social">
-                        <a href="#">📘</a>
-                        <a href="#">📷</a>
-                        <a href="#">💬</a>
-                        <a href="#">▶️</a>
-                    </div>
                 </div>
                 <div>
                     <h4>روابط سريعة</h4>
-                    <a href="#" onclick="showHome()">🏠 الرئيسية</a><br />
-                    <a href="#" onclick="showProducts()">📦 المنتجات</a><br />
-                    <a href="#" onclick="showAddProduct()">➕ إضافة منتج</a><br />
-                    <a href="#" onclick="showFeatured()">⭐ مميزات</a>
+                    <a href="#" onclick="showHome()">الرئيسية</a>
+                    <a href="#" onclick="showProducts()">المنتجات</a>
+                    <a href="#" onclick="showAddProduct()">إضافة منتج</a>
                 </div>
                 <div>
                     <h4>معلومات</h4>
                     <p>📍 سوريا - دير الزور</p>
-                    <p>📧 info@modern-exhibition.com</p>
-                    <p>📱 +966 50 000 0000</p>
+                    <p>📧 <a href="mailto:hg78@live.com" style="color:#D4A85C;">hg78@live.com</a></p>
+                    <p>📱 <a href="tel:+963996190945" style="color:#D4A85C;">+963 996 190 945</a></p>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -145,11 +93,8 @@
         </div>
     </footer>
 
-    <!-- ===== SCRIPTS ===== -->
     <script src="js/app.js"></script>
     <script src="js/toast.js"></script>
     <script src="js/modal.js"></script>
-    <script src="js/slider.js"></script>
-    <script src="js/admin.js"></script>
 </body>
 </html>
