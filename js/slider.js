@@ -6,11 +6,23 @@ let currentSlide = 0;
 // ===== إنشاء سلايدر =====
 function createSlider(images, containerId) {
     const container = document.getElementById(containerId);
-    if (!container) return;
+    if (!container) {
+        console.warn('Container not found:', containerId);
+        return;
+    }
+    
+    if (!images || images.length === 0) {
+        container.innerHTML = `
+            <div style="height:300px;background:#e5e7eb;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#999;">
+                🖼️ لا توجد صور
+            </div>
+        `;
+        return;
+    }
     
     // بناء السلايدر
     container.innerHTML = `
-        <div class="slider-container" style="position:relative;overflow:hidden;border-radius:16px;">
+        <div class="slider-container" style="position:relative;overflow:hidden;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
             <div class="slider-track" style="display:flex;transition:transform 0.5s ease;">
                 ${images.map(img => `
                     <div class="slider-slide" style="min-width:100%;height:400px;">
@@ -20,10 +32,12 @@ function createSlider(images, containerId) {
             </div>
             
             ${images.length > 1 ? `
-                <button class="slider-btn prev" onclick="slidePrev('${containerId}')" style="position:absolute;left:20px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;border-radius:50%;width:50px;height:50px;font-size:24px;cursor:pointer;z-index:10;transition:0.3s;">
+                <button class="slider-btn prev" onclick="slidePrev('${containerId}')" 
+                        style="position:absolute;left:20px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;border-radius:50%;width:50px;height:50px;font-size:24px;cursor:pointer;z-index:10;transition:0.3s;">
                     ❮
                 </button>
-                <button class="slider-btn next" onclick="slideNext('${containerId}')" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;border-radius:50%;width:50px;height:50px;font-size:24px;cursor:pointer;z-index:10;transition:0.3s;">
+                <button class="slider-btn next" onclick="slideNext('${containerId}')" 
+                        style="position:absolute;right:20px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;border-radius:50%;width:50px;height:50px;font-size:24px;cursor:pointer;z-index:10;transition:0.3s;">
                     ❯
                 </button>
                 
@@ -66,7 +80,6 @@ function slideNext(containerId) {
     currentSlide = (currentSlide + 1) % total;
     track.style.transform = `translateX(-${currentSlide * 100}%)`;
     
-    // تحديث النقاط
     updateDots(containerId);
 }
 
@@ -115,7 +128,10 @@ function updateDots(containerId) {
 
 // ===== التشغيل التلقائي =====
 function startAutoSlide(containerId) {
-    if (sliderInterval) clearInterval(sliderInterval);
+    if (sliderInterval) {
+        clearInterval(sliderInterval);
+        sliderInterval = null;
+    }
     
     sliderInterval = setInterval(() => {
         slideNext(containerId);
