@@ -1,238 +1,263 @@
-// js/app.js
-
-// ===== المتغيرات العالمية =====
-let currentProducts = [];
+// ===== GLOBALS =====
+let allProducts = [];
 let editingProductId = null;
+let currentFilter = 'all';
 
-// ===== عرض المنتجات =====
-async function showProducts() {
-    const content = document.getElementById('content');
+// ===== SHOW HOME =====
+async function showHome() {
+    const content = document.getElementById('mainContent');
     content.innerHTML = `
-        <div class="container" style="text-align:center;padding:40px 0;">
+        <div style="text-align:center;padding:40px 0;">
             <div class="loading-spinner"></div>
-            <p style="margin-top:20px;color:#888;">⏳ جاري تحميل المنتجات...</p>
+            <p style="margin-top:16px;color:#888;">⏳ جاري التحميل...</p>
         </div>
     `;
-    
+
     try {
-        const snapshot = await getDocs(collection(db, 'products'));
-        currentProducts = [];
-        snapshot.forEach(doc => {
-            currentProducts.push({ id: doc.id, ...doc.data() });
-        });
-        
-        renderProducts(currentProducts);
-    } catch (error) {
-        console.error('Error loading products:', error);
-        showToast('❌ خطأ في تحميل المنتجات', 'error');
-        content.innerHTML = `
-            <div class="container">
-                <div class="empty-state">
-                    <h2>❌ خطأ في التحميل</h2>
-                    <p>حدث خطأ أثناء تحميل المنتجات. حاول مرة أخرى.</p>
-                    <button class="btn btn-gold" onclick="showProducts()">🔄 إعادة المحاولة</button>
-                </div>
-            </div>
+        const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // الإحصائيات
+        const total = allProducts.length;
+        const featured = allProducts.filter(p => p.featured).length;
+        const totalViews = allProducts.reduce((sum, p) => sum + (p.views || 0), 0);
+
+        // آخر 6 منتجات
+        const latest = allProducts.slice(0, 6);
+        const featuredProducts = allProducts.filter(p => p.featured).slice(0, 4);
+
+        let html = `
+            <!-- STATS -->
+            <section class="stats-section">
+                <div class="stat-box"><h3>${total}</h3><p>📦 منتجات</p></div>
+                <div class="stat-box"><h3>${featured}</h3><p>⭐ مميزة</p></div>
+                <div class="stat-box"><h3>${totalViews}</h3><p>👁️ مشاهدات</p></div>
+                <div class="stat-box"><h3>${allProducts.filter(p => p.condition === 'جديد').length}</h3><p>🆕 جديدة</p></div>
+            </section>
+
+            <!-- FEATURED -->
+            ${featuredProducts.length ? `
+            <section class="featured-section">
+                <div class="section-title"><span></span> ⭐ إعلانات مميزة</div>
+                <div class="products-grid">${renderProductCards(featuredProducts)}</div>
+            </section>` : ''}
+
+            <!-- LATEST -->
+            <section class="latest-section">
+                <div class="section-title"><span></span> 📦 آخر المنتجات</div>
+                <div class="products-grid">${renderProductCards(latest)}</div>
+            </section>
+
+            <!-- CATEGORIES -->
+            <section class="categories-section">
+                <div class="section-title"><span></span> 🏷️ التصنيفات</div>
+                <div class="categories-grid">${renderCategories()}</div>
+            </section>
         `;
+
+        content.innerHTML = html;
+
+        // تأثير الدخول
+        setTimeout(() => {
+            document.querySelectorAll('.product-card').forEach(el => el.classList.add('visible'));
+        }, 80);
+
+    } catch (e) {
+        console.error(e);
+        content.innerHTML = `<div class="empty-state"><h2>❌ خطأ</h2><p>حدث خطأ في التحميل</p><button class="btn btn-gold" onclick="showHome()">🔄 إعادة المحاولة</button></div>`;
     }
 }
 
-// ===== عرض المنتجات =====
-function renderProducts(products) {
-    const content = document.getElementById('content');
-    
-    if (products.length === 0) {
-        content.innerHTML = `
-            <div class="container">
-                <div class="empty-state">
-                    <h2>📦 لا توجد منتجات</h2>
-                    <p>أضف منتجك الأول الآن!</p>
-                    <button class="btn btn-gold" onclick="showAddProduct()">➕ إضافة منتج</button>
-                </div>
+// ===== RENDER PRODUCT CARDS =====
+function renderProductCards(products) {
+    if (!products || !products.length) return `<p style="color:#999;">لا توجد منتجات</p>`;
+    return products.map(p => `
+        <div class="product-card" onclick="showProductDetail('${p.id}')">
+            ${p.isNew ? `<span class="product-badge new">جديد</span>` : ''}
+            ${p.featured ? `<span class="product-badge featured">⭐ مميز</span>` : ''}
+            <div class="product-image-wrapper">
+                ${p.images && p.images[0] ? 
+                    `<img src="${p.images[0]}" alt="${p.title}" class="product-image">` :
+                    `<div class="product-image" style="display:flex;align-items:center;justify-content:center;background:#e5e7eb;color:#999;font-size:48px;">🖼️</div>`
+                }
+                <div class="product-image-overlay"></div>
             </div>
-        `;
-        return;
-    }
-    
-    let html = `
-        <div class="container">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:20px 0;">
-                <h2 style="color:var(--brown);">📦 المنتجات (${products.length})</h2>
-                <button class="btn btn-gold" onclick="showAddProduct()">➕ إضافة منتج</button>
-            </div>
-            <div class="products-grid">
-    `;
-    
-    products.forEach((product, index) => {
-        const delay = index * 100;
-        html += `
-            <div class="product-card" onclick="showProductDetail('${product.id}')" style="animation-delay:${delay}ms;">
-                ${product.isNew ? `<span class="product-badge new">جديد</span>` : ''}
-                ${product.featured ? `<span class="product-badge featured">مميز</span>` : ''}
-                <div class="product-image-wrapper">
-                    ${product.images && product.images[0] ? 
-                        `<img src="${product.images[0]}" alt="${product.title}" class="product-image">` :
-                        `<div class="product-image" style="display:flex;align-items:center;justify-content:center;background:#e5e7eb;color:#999;font-size:48px;">🖼️</div>`
-                    }
-                    <div class="product-image-overlay"></div>
+            <div class="product-info">
+                <h3 class="product-title">${p.title}</h3>
+                ${p.brand ? `<p class="product-brand">🏷️ ${p.brand}</p>` : ''}
+                <p class="product-price">$${p.price} <small>${p.currency || 'USD'}</small></p>
+                <div class="product-tags">
+                    ${p.category ? `<span class="tag">📂 ${p.category}</span>` : ''}
+                    ${p.room ? `<span class="tag">🏠 ${p.room}</span>` : ''}
+                    ${p.color ? `<span class="tag">🎨 ${p.color}</span>` : ''}
                 </div>
-                <div class="product-info">
-                    <h3 class="product-title">${product.title}</h3>
-                    ${product.brand ? `<p class="product-brand">🏷️ ${product.brand}</p>` : ''}
-                    <p class="product-price">$${product.price} <span>${product.currency || 'USD'}</span></p>
-                    <div class="product-tags">
-                        ${product.category ? `<span class="tag">📂 ${product.category}</span>` : ''}
-                        ${product.room ? `<span class="tag">🏠 ${product.room}</span>` : ''}
-                        ${product.color ? `<span class="tag">🎨 ${product.color}</span>` : ''}
-                        ${product.material ? `<span class="tag">🔧 ${product.material}</span>` : ''}
-                    </div>
-                    <button class="btn-quote" onclick="event.stopPropagation();requestQuote('${product.id}')">
-                        📞 طلب عرض سعر
-                    </button>
-                </div>
+                <button class="btn-quote" onclick="event.stopPropagation();requestQuote('${p.id}')">📞 طلب عرض سعر</button>
             </div>
-        `;
-    });
-    
-    html += `</div></div>`;
-    content.innerHTML = html;
-    
-    // تفعيل تأثير الدخول
-    setTimeout(() => {
-        document.querySelectorAll('.product-card').forEach(card => {
-            card.classList.add('visible');
-        });
-    }, 100);
+        </div>
+    `).join('');
 }
 
-// ===== عرض نموذج الإضافة =====
-function showAddProduct() {
-    const content = document.getElementById('content');
+// ===== RENDER CATEGORIES =====
+function renderCategories() {
+    const cats = ['أبواب', 'شبابيك', 'مطابخ', 'غرف نوم', 'ألمنيوم', 'ديكورات'];
+    const icons = ['🚪', '🪟', '🍳', '🛏️', '🔩', '🎨'];
+    return cats.map((cat, i) => {
+        const count = allProducts.filter(p => p.category === cat).length;
+        return `
+            <div class="category-card" onclick="filterByCategory('${cat}')">
+                <div class="category-icon">${icons[i]}</div>
+                <h4>${cat}</h4>
+                <p>${count} منتج</p>
+            </div>
+        `;
+    }).join('');
+}
+
+// ===== FILTER BY CATEGORY =====
+function filterByCategory(category) {
+    currentFilter = category;
+    showProducts();
+}
+
+// ===== SHOW PRODUCTS =====
+async function showProducts() {
+    const content = document.getElementById('mainContent');
+    content.innerHTML = `<div style="text-align:center;padding:40px;"><div class="loading-spinner"></div></div>`;
+
+    try {
+        let q = collection(db, 'products');
+        if (currentFilter !== 'all') {
+            q = query(q, where('category', '==', currentFilter));
+        }
+        const snapshot = await getDocs(q);
+        allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        let html = `
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:20px 0 10px;">
+                <h2 style="color:var(--brown);">📦 المنتجات (${allProducts.length})</h2>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <button class="btn btn-brown" onclick="currentFilter='all';showProducts();">الكل</button>
+                    ${['أبواب','شبابيك','مطابخ','غرف نوم','ألمنيوم'].map(c => `
+                        <button class="btn ${currentFilter===c?'btn-gold':'btn-brown'}" onclick="currentFilter='${c}';showProducts();">${c}</button>
+                    `).join('')}
+                    <button class="btn btn-gold" onclick="showAddProduct()">➕ إضافة</button>
+                </div>
+            </div>
+            <div class="products-grid">${renderProductCards(allProducts)}</div>
+        `;
+        content.innerHTML = html;
+        setTimeout(() => document.querySelectorAll('.product-card').forEach(el => el.classList.add('visible')), 80);
+
+    } catch (e) {
+        console.error(e);
+        content.innerHTML = `<div class="empty-state"><h2>❌ خطأ</h2><p>حدث خطأ في التحميل</p></div>`;
+    }
+}
+
+// ===== SHOW FEATURED =====
+function showFeatured() {
+    const featured = allProducts.filter(p => p.featured);
+    const content = document.getElementById('mainContent');
     content.innerHTML = `
-        <div class="container">
-            <div class="form-container" id="formContainer">
-                <h2>${editingProductId ? '✏️ تعديل المنتج' : '➕ إضافة منتج جديد'}</h2>
-                <form id="productForm" enctype="multipart/form-data">
+        <div class="section-title" style="margin-top:20px;"><span></span> ⭐ المنتجات المميزة</div>
+        ${featured.length ? `<div class="products-grid">${renderProductCards(featured)}</div>` : 
+        `<div class="empty-state"><h2>⭐ لا توجد منتجات مميزة</h2><p>قم بجعل منتج مميزاً من لوحة التحكم</p></div>`}
+    `;
+    setTimeout(() => document.querySelectorAll('.product-card').forEach(el => el.classList.add('visible')), 80);
+}
+
+// ===== SHOW ADD PRODUCT =====
+function showAddProduct() {
+    const content = document.getElementById('mainContent');
+    content.innerHTML = `
+        <div class="form-container" id="formContainer">
+            <h2>${editingProductId ? '✏️ تعديل المنتج' : '➕ إضافة منتج جديد'}</h2>
+            <form id="productForm">
+                <div class="form-group">
+                    <label>اسم المنتج <span class="required">*</span></label>
+                    <input type="text" id="title" required placeholder="مثال: باب خشبي فاخر">
+                </div>
+                <div class="form-group">
+                    <label>السعر ($) <span class="required">*</span></label>
+                    <input type="number" id="price" required placeholder="500" step="0.01">
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label>اسم المنتج <span class="required">*</span></label>
-                        <input type="text" id="title" required placeholder="مثال: باب خشبي فاخر">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>السعر ($) <span class="required">*</span></label>
-                        <input type="number" id="price" required placeholder="500" step="0.01">
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>الفئة</label>
-                            <select id="category">
-                                <option value="أبواب">أبواب</option>
-                                <option value="شبابيك">شبابيك</option>
-                                <option value="مطابخ">مطابخ</option>
-                                <option value="غرف نوم">غرف نوم</option>
-                                <option value="ألمنيوم">ألمنيوم</option>
-                                <option value="ديكورات">ديكورات</option>
-                                <option value="أثاث مكتبي">أثاث مكتبي</option>
-                                <option value="إكسسوارات">إكسسوارات</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>الغرفة</label>
-                            <select id="room">
-                                <option value="صالة">صالة</option>
-                                <option value="غرفة نوم">غرفة نوم</option>
-                                <option value="مطبخ">مطبخ</option>
-                                <option value="حمام">حمام</option>
-                                <option value="حديقة">حديقة</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>اللون</label>
-                            <input type="text" id="color" placeholder="بني ذهبي">
-                        </div>
-                        <div class="form-group">
-                            <label>الخامة</label>
-                            <input type="text" id="material" placeholder="خشب">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>العلامة التجارية</label>
-                        <input type="text" id="brand" placeholder="اسم المصنع">
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>الطول (سم)</label>
-                            <input type="number" id="length" placeholder="210">
-                        </div>
-                        <div class="form-group">
-                            <label>العرض (سم)</label>
-                            <input type="number" id="width" placeholder="90">
-                        </div>
-                        <div class="form-group">
-                            <label>الارتفاع (سم)</label>
-                            <input type="number" id="height" placeholder="4">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>الوصف</label>
-                        <textarea id="description" rows="4" placeholder="وصف المنتج بالتفصيل..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>صور المنتج (روابط)</label>
-                        <input type="text" id="images" placeholder="رابط الصورة 1, رابط الصورة 2, ...">
-                        <small style="color:#888;">افصل بين الروابط بفاصلة</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>حالة المنتج</label>
-                        <select id="condition">
-                            <option value="جديد">جديد</option>
-                            <option value="مستعمل">مستعمل</option>
-                            <option value="للطلب">للطلب</option>
+                        <label>الفئة</label>
+                        <select id="category">
+                            <option value="أبواب">أبواب</option>
+                            <option value="شبابيك">شبابيك</option>
+                            <option value="مطابخ">مطابخ</option>
+                            <option value="غرف نوم">غرف نوم</option>
+                            <option value="ألمنيوم">ألمنيوم</option>
+                            <option value="ديكورات">ديكورات</option>
                         </select>
                     </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-submit">
-                            ${editingProductId ? '💾 تحديث المنتج' : '📤 نشر المنتج'}
-                        </button>
-                        ${editingProductId ? 
-                            `<button type="button" class="btn btn-cancel" onclick="cancelEdit()">إلغاء التعديل</button>` : 
-                            `<button type="button" class="btn btn-cancel" onclick="showProducts()">إلغاء</button>`
-                        }
+                    <div class="form-group">
+                        <label>الغرفة</label>
+                        <select id="room">
+                            <option value="صالة">صالة</option>
+                            <option value="غرفة نوم">غرفة نوم</option>
+                            <option value="مطبخ">مطبخ</option>
+                            <option value="حمام">حمام</option>
+                            <option value="حديقة">حديقة</option>
+                        </select>
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اللون</label>
+                        <input type="text" id="color" placeholder="بني ذهبي">
+                    </div>
+                    <div class="form-group">
+                        <label>الخامة</label>
+                        <input type="text" id="material" placeholder="خشب">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>العلامة التجارية</label>
+                    <input type="text" id="brand" placeholder="اسم المصنع">
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>الطول (سم)</label><input type="number" id="length" placeholder="210"></div>
+                    <div class="form-group"><label>العرض (سم)</label><input type="number" id="width" placeholder="90"></div>
+                    <div class="form-group"><label>الارتفاع (سم)</label><input type="number" id="height" placeholder="4"></div>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="description" rows="4" placeholder="وصف المنتج..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>صور المنتج (روابط)</label>
+                    <input type="text" id="images" placeholder="رابط1, رابط2, ...">
+                    <small style="color:#888;">افصل بين الروابط بفاصلة</small>
+                </div>
+                <div class="form-group">
+                    <label>حالة المنتج</label>
+                    <select id="condition">
+                        <option value="جديد">جديد</option>
+                        <option value="مستعمل">مستعمل</option>
+                        <option value="للطلب">للطلب</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-submit">${editingProductId ? '💾 تحديث' : '📤 نشر'}</button>
+                    <button type="button" class="btn btn-cancel" onclick="editingProductId=null;showHome();">إلغاء</button>
+                </div>
+            </form>
         </div>
     `;
-    
-    // تفعيل تأثير الدخول
-    setTimeout(() => {
-        document.getElementById('formContainer').classList.add('visible');
-    }, 50);
-    
-    // معالجة إرسال النموذج
+
     document.getElementById('productForm').addEventListener('submit', handleProductSubmit);
-    
-    // إذا كان في وضع التعديل، املأ البيانات
-    if (editingProductId) {
-        loadProductData(editingProductId);
-    }
+    if (editingProductId) loadProductData(editingProductId);
+    setTimeout(() => document.getElementById('formContainer')?.classList.add('fade-in'), 50);
 }
 
-// ===== معالجة إرسال المنتج =====
+// ===== HANDLE PRODUCT SUBMIT =====
 async function handleProductSubmit(e) {
     e.preventDefault();
-    
-    const productData = {
+    const data = {
         title: document.getElementById('title').value.trim(),
         price: parseFloat(document.getElementById('price').value),
         category: document.getElementById('category').value,
@@ -246,251 +271,194 @@ async function handleProductSubmit(e) {
             width: parseFloat(document.getElementById('width').value) || 0,
             height: parseFloat(document.getElementById('height').value) || 0
         },
-        images: document.getElementById('images').value.split(',').map(s => s.trim()).filter(s => s),
+        images: document.getElementById('images').value.split(',').map(s => s.trim()).filter(Boolean),
         condition: document.getElementById('condition').value,
         currency: 'USD',
         updatedAt: new Date()
     };
-    
-    // تحقق من البيانات
-    if (!productData.title) {
-        showToast('❌ يرجى إدخال اسم المنتج', 'error');
-        return;
-    }
-    
-    if (!productData.price || productData.price <= 0) {
-        showToast('❌ يرجى إدخال سعر صحيح', 'error');
-        return;
-    }
-    
+
+    if (!data.title) return showToast('❌ أدخل اسم المنتج', 'error');
+    if (!data.price || data.price <= 0) return showToast('❌ أدخل سعراً صحيحاً', 'error');
+
     try {
-        const submitBtn = document.querySelector('.btn-submit');
-        submitBtn.textContent = '⏳ جاري الحفظ...';
-        submitBtn.disabled = true;
-        
+        const btn = document.querySelector('.btn-submit');
+        btn.textContent = '⏳ جاري الحفظ...';
+        btn.disabled = true;
+
         if (editingProductId) {
-            // تحديث المنتج
-            await updateDoc(doc(db, 'products', editingProductId), productData);
-            showToast('✅ تم تحديث المنتج بنجاح!', 'success');
+            await updateDoc(doc(db, 'products', editingProductId), data);
+            showToast('✅ تم التحديث بنجاح!', 'success');
             editingProductId = null;
         } else {
-            // إضافة منتج جديد
-            productData.createdAt = new Date();
-            productData.isNew = true;
-            productData.featured = false;
-            productData.views = 0;
-            await addDoc(collection(db, 'products'), productData);
-            showToast('✅ تم إضافة المنتج بنجاح!', 'success');
+            data.createdAt = new Date();
+            data.isNew = true;
+            data.featured = false;
+            data.views = 0;
+            await addDoc(collection(db, 'products'), data);
+            showToast('✅ تم النشر بنجاح!', 'success');
         }
-        
-        showProducts();
-    } catch (error) {
-        console.error('Error saving product:', error);
-        showToast('❌ حدث خطأ: ' + error.message, 'error');
-        const submitBtn = document.querySelector('.btn-submit');
-        submitBtn.textContent = editingProductId ? '💾 تحديث المنتج' : '📤 نشر المنتج';
-        submitBtn.disabled = false;
+        showHome();
+    } catch (err) {
+        console.error(err);
+        showToast('❌ حدث خطأ: ' + err.message, 'error');
+        const btn = document.querySelector('.btn-submit');
+        btn.textContent = editingProductId ? '💾 تحديث' : '📤 نشر';
+        btn.disabled = false;
     }
 }
 
-// ===== عرض تفاصيل المنتج =====
-function showProductDetail(productId) {
-    const product = currentProducts.find(p => p.id === productId);
-    if (!product) {
-        showToast('❌ المنتج غير موجود', 'error');
-        return;
-    }
-    
-    const content = document.getElementById('content');
+// ===== SHOW PRODUCT DETAIL =====
+async function showProductDetail(id) {
+    const product = allProducts.find(p => p.id === id);
+    if (!product) return showToast('❌ المنتج غير موجود', 'error');
+
+    const content = document.getElementById('mainContent');
     const images = product.images || [];
-    const hasDimensions = product.dimensions && (product.dimensions.length || product.dimensions.width || product.dimensions.height);
-    
+    const hasDim = product.dimensions && (product.dimensions.length || product.dimensions.width || product.dimensions.height);
+
     content.innerHTML = `
-        <div class="container">
-            <button class="btn btn-brown" onclick="showProducts()" style="margin:20px 0;">⬅️ العودة إلى المنتجات</button>
-            
-            <div class="product-detail">
-                <div class="product-detail-gallery">
-                    ${images.length > 0 ? 
-                        `<img src="${images[0]}" alt="${product.title}" class="product-detail-image" id="mainImage">` :
-                        `<div class="product-detail-image" style="display:flex;align-items:center;justify-content:center;background:#e5e7eb;color:#999;font-size:64px;">🖼️</div>`
-                    }
-                    ${images.length > 1 ? `
-                        <div class="product-detail-thumbs">
-                            ${images.map((img, i) => `
-                                <img src="${img}" alt="صورة ${i+1}" 
-                                     onclick="document.getElementById('mainImage').src='${img}';document.querySelectorAll('.product-detail-thumbs img').forEach(el=>el.classList.remove('active'));this.classList.add('active');"
-                                     class="${i === 0 ? 'active' : ''}">
-                            `).join('')}
-                        </div>
-                    ` : ''}
+        <button class="btn btn-brown" onclick="showHome()" style="margin:16px 0;">⬅️ العودة</button>
+        <div class="product-detail">
+            <div class="product-detail-gallery">
+                ${images[0] ? `<img src="${images[0]}" id="mainDetailImage" class="product-detail-image">` :
+                    `<div class="product-detail-image" style="display:flex;align-items:center;justify-content:center;background:#e5e7eb;color:#999;font-size:64px;">🖼️</div>`}
+                ${images.length > 1 ? `
+                    <div class="product-detail-thumbs">
+                        ${images.map((img, i) => `
+                            <img src="${img}" onclick="document.getElementById('mainDetailImage').src='${img}';document.querySelectorAll('.product-detail-thumbs img').forEach(el=>el.classList.remove('active'));this.classList.add('active');" 
+                                 class="${i===0?'active':''}">
+                        `).join('')}
+                    </div>
+                ` : ''}
+            </div>
+            <div class="product-detail-info">
+                <h1>${product.title}</h1>
+                ${product.brand ? `<p style="color:var(--gold);font-size:18px;">🏷️ ${product.brand}</p>` : ''}
+                <p class="product-detail-price">$${product.price} <small style="font-size:16px;color:#888;">${product.currency || 'USD'}</small></p>
+                <div class="product-detail-meta">
+                    ${product.category ? `<span class="tag">📂 ${product.category}</span>` : ''}
+                    ${product.room ? `<span class="tag">🏠 ${product.room}</span>` : ''}
+                    ${product.color ? `<span class="tag">🎨 ${product.color}</span>` : ''}
+                    ${product.material ? `<span class="tag">🔧 ${product.material}</span>` : ''}
+                    ${product.condition ? `<span class="tag">📌 ${product.condition}</span>` : ''}
                 </div>
-                
-                <div class="product-detail-info">
-                    <h1>${product.title}</h1>
-                    ${product.brand ? `<p style="color:var(--gold);font-size:18px;">🏷️ ${product.brand}</p>` : ''}
-                    <p class="product-detail-price">$${product.price} <span style="font-size:16px;color:#888;">${product.currency || 'USD'}</span></p>
-                    
-                    <div class="product-detail-meta">
-                        ${product.category ? `<span class="tag">📂 ${product.category}</span>` : ''}
-                        ${product.room ? `<span class="tag">🏠 ${product.room}</span>` : ''}
-                        ${product.color ? `<span class="tag">🎨 ${product.color}</span>` : ''}
-                        ${product.material ? `<span class="tag">🔧 ${product.material}</span>` : ''}
-                        ${product.condition ? `<span class="tag">📌 ${product.condition}</span>` : ''}
-                    </div>
-                    
-                    ${hasDimensions ? `
-                        <div class="product-detail-dimensions">
-                            <h3>📏 المقاسات</h3>
-                            <div class="product-detail-dimensions-grid">
-                                <div>
-                                    <p class="label">الطول</p>
-                                    <p class="value">${product.dimensions.length || 0} سم</p>
-                                </div>
-                                <div>
-                                    <p class="label">العرض</p>
-                                    <p class="value">${product.dimensions.width || 0} سم</p>
-                                </div>
-                                <div>
-                                    <p class="label">الارتفاع</p>
-                                    <p class="value">${product.dimensions.height || 0} سم</p>
-                                </div>
-                            </div>
+                ${hasDim ? `
+                    <div class="product-detail-dimensions">
+                        <h3>📏 المقاسات</h3>
+                        <div class="product-detail-dimensions-grid">
+                            <div><p class="label">الطول</p><p class="value">${product.dimensions.length || 0} سم</p></div>
+                            <div><p class="label">العرض</p><p class="value">${product.dimensions.width || 0} سم</p></div>
+                            <div><p class="label">الارتفاع</p><p class="value">${product.dimensions.height || 0} سم</p></div>
                         </div>
-                    ` : ''}
-                    
-                    ${product.description ? `<p style="color:#555;margin:20px 0;">${product.description}</p>` : ''}
-                    
-                    <div class="product-detail-actions">
-                        <button class="btn btn-green" onclick="requestQuote('${product.id}')">
-                            📞 طلب عرض سعر
-                        </button>
-                        <button class="btn btn-brown" onclick="editProduct('${product.id}')">
-                            ✏️ تعديل المنتج
-                        </button>
-                        <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">
-                            🗑️ حذف المنتج
-                        </button>
-                        <button class="btn btn-gold" onclick="window.open('${images[0] || ''}', '_blank')">
-                            🔍 عرض الصورة
-                        </button>
                     </div>
+                ` : ''}
+                ${product.description ? `<p style="color:#555;margin:16px 0;">${product.description}</p>` : ''}
+                <div class="product-detail-actions">
+                    <button class="btn btn-green" onclick="requestQuote('${product.id}')">📞 طلب عرض سعر</button>
+                    <button class="btn btn-brown" onclick="editProduct('${product.id}')">✏️ تعديل</button>
+                    <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">🗑️ حذف</button>
                 </div>
             </div>
         </div>
     `;
 }
 
-// ===== طلب عرض سعر =====
-function requestQuote(productId) {
-    const product = currentProducts.find(p => p.id === productId);
-    if (!product) {
-        showToast('❌ المنتج غير موجود', 'error');
-        return;
-    }
-    
-    showQuoteModal(product, (data) => {
-        const message = `
-            📋 طلب عرض سعر
-            المنتج: ${product.title}
-            السعر: $${product.price}
-            الاسم: ${data.name}
-            الهاتف: ${data.phone}
-            الرسالة: ${data.message}
-        `;
-        const url = `https://wa.me/966500000000?text=${encodeURIComponent(message)}`;
-        window.open(url, '_blank');
+// ===== REQUEST QUOTE =====
+function requestQuote(id) {
+    const p = allProducts.find(p => p.id === id);
+    if (!p) return;
+    showQuoteModal(p, (data) => {
+        const msg = `📋 طلب عرض سعر\nالمنتج: ${p.title}\nالسعر: $${p.price}\nالاسم: ${data.name}\nالهاتف: ${data.phone}\nالرسالة: ${data.message}`;
+        window.open(`https://wa.me/966500000000?text=${encodeURIComponent(msg)}`, '_blank');
         closeModal();
-        showToast('✅ تم إرسال الطلب بنجاح!', 'success');
+        showToast('✅ تم إرسال الطلب', 'success');
     });
 }
 
-// ===== تعديل المنتج =====
-function editProduct(productId) {
-    editingProductId = productId;
+// ===== EDIT PRODUCT =====
+function editProduct(id) {
+    editingProductId = id;
     showAddProduct();
 }
 
-// ===== حذف المنتج =====
-async function deleteProduct(productId) {
-    const product = currentProducts.find(p => p.id === productId);
-    if (!product) return;
-    
-    confirmDelete(`هل أنت متأكد من حذف المنتج "${product.title}"؟`, async () => {
-        try {
-            await deleteDoc(doc(db, 'products', productId));
-            showToast('✅ تم حذف المنتج بنجاح', 'success');
-            showProducts();
-        } catch (error) {
-            console.error('Error deleting product:', error);
-            showToast('❌ حدث خطأ في الحذف', 'error');
-        }
+// ===== DELETE PRODUCT =====
+function deleteProduct(id) {
+    const p = allProducts.find(p => p.id === id);
+    if (!p) return;
+    confirmDelete(`هل أنت متأكد من حذف "${p.title}"؟`, async () => {
+        await deleteDoc(doc(db, 'products', id));
+        showToast('✅ تم الحذف', 'success');
+        showHome();
     });
 }
 
-// ===== إلغاء التعديل =====
-function cancelEdit() {
-    editingProductId = null;
-    showAddProduct();
+// ===== LOAD PRODUCT DATA =====
+async function loadProductData(id) {
+    const snap = await getDoc(doc(db, 'products', id));
+    if (!snap.exists()) return;
+    const d = snap.data();
+    document.getElementById('title').value = d.title || '';
+    document.getElementById('price').value = d.price || '';
+    document.getElementById('category').value = d.category || 'أبواب';
+    document.getElementById('room').value = d.room || 'صالة';
+    document.getElementById('color').value = d.color || '';
+    document.getElementById('material').value = d.material || '';
+    document.getElementById('brand').value = d.brand || '';
+    document.getElementById('description').value = d.description || '';
+    document.getElementById('length').value = d.dimensions?.length || '';
+    document.getElementById('width').value = d.dimensions?.width || '';
+    document.getElementById('height').value = d.dimensions?.height || '';
+    document.getElementById('images').value = (d.images || []).join(', ');
+    document.getElementById('condition').value = d.condition || 'جديد';
 }
 
-// ===== تحميل البيانات للتعديل =====
-async function loadProductData(productId) {
-    try {
-        const docRef = doc(db, 'products', productId);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            document.getElementById('title').value = data.title || '';
-            document.getElementById('price').value = data.price || '';
-            document.getElementById('category').value = data.category || 'أبواب';
-            document.getElementById('room').value = data.room || 'صالة';
-            document.getElementById('color').value = data.color || '';
-            document.getElementById('material').value = data.material || '';
-            document.getElementById('brand').value = data.brand || '';
-            document.getElementById('description').value = data.description || '';
-            document.getElementById('length').value = data.dimensions?.length || '';
-            document.getElementById('width').value = data.dimensions?.width || '';
-            document.getElementById('height').value = data.dimensions?.height || '';
-            document.getElementById('images').value = (data.images || []).join(', ');
-            document.getElementById('condition').value = data.condition || 'جديد';
-        }
-    } catch (error) {
-        console.error('Error loading product data:', error);
-        showToast('❌ خطأ في تحميل بيانات المنتج', 'error');
-    }
+// ===== GLOBAL SEARCH =====
+function globalSearch() {
+    const query = document.getElementById('globalSearch').value.trim().toLowerCase();
+    if (!query) return showHome();
+    const filtered = allProducts.filter(p => 
+        p.title.toLowerCase().includes(query) || 
+        p.brand?.toLowerCase().includes(query) ||
+        p.category?.toLowerCase().includes(query)
+    );
+    const content = document.getElementById('mainContent');
+    content.innerHTML = `
+        <h2 style="color:var(--brown);margin:20px 0;">🔍 نتائج البحث عن "${query}" (${filtered.length})</h2>
+        <div class="products-grid">${renderProductCards(filtered)}</div>
+    `;
+    setTimeout(() => document.querySelectorAll('.product-card').forEach(el => el.classList.add('visible')), 80);
 }
 
-// ===== زر العودة للأعلى =====
+// ===== TOGGLE MOBILE MENU =====
+function toggleMobileMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+// ===== SCROLL TO TOP =====
 function initScrollTop() {
     const btn = document.createElement('button');
     btn.className = 'scroll-top';
     btn.innerHTML = '⬆';
-    btn.setAttribute('aria-label', 'العودة للأعلى');
     btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
     document.body.appendChild(btn);
-    
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-            btn.classList.add('visible');
-        } else {
-            btn.classList.remove('visible');
-        }
-    });
+    window.addEventListener('scroll', () => btn.classList.toggle('visible', window.scrollY > 300));
 }
 
-// ===== تهيئة التطبيق =====
+// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-    showProducts();
+    showHome();
     initScrollTop();
 });
 
-// ===== تصدير الدوال للاستخدام العالمي =====
+// ===== EXPOSE GLOBALLY =====
+window.showHome = showHome;
 window.showProducts = showProducts;
+window.showFeatured = showFeatured;
 window.showAddProduct = showAddProduct;
 window.showProductDetail = showProductDetail;
 window.requestQuote = requestQuote;
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
-window.cancelEdit = cancelEdit;
+window.filterByCategory = filterByCategory;
+window.globalSearch = globalSearch;
+window.toggleMobileMenu = toggleMobileMenu;
