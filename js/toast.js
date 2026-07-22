@@ -10,23 +10,6 @@ function showToast(message, type = 'info') {
     toast.className = `toast toast-${type}`;
     toast.textContent = message;
     
-    // تنسيقات إضافية
-    toast.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        padding: 15px 25px;
-        border-radius: 10px;
-        color: white;
-        font-weight: bold;
-        z-index: 9999;
-        animation: slideIn 0.5s ease;
-        background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6'};
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        max-width: 400px;
-        direction: rtl;
-    `;
-    
     document.body.appendChild(toast);
     
     // اختفاء تلقائي
