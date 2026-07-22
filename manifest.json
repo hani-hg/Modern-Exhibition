@@ -1,14 +1,12 @@
 {
-  "name": "سوق دير الزور",
-  "short_name": "سوق الدير",
-  "description": "أول سوق إلكتروني في دير الزور — بيع وشراء بضغطة واحدة",
+  "name": "Modern Exhibition - كتالوج الأثاث",
+  "short_name": "Modern Exhibition",
+  "description": "كتالوج معرض متخصص في الأثاث والألمنيوم الفاخر",
   "start_url": "/",
   "display": "standalone",
+  "background_color": "#F5F0E8",
+  "theme_color": "#5D4037",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#1565C0",
-  "lang": "ar",
-  "dir": "rtl",
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -21,14 +19,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
     }
-  ],
-  "categories": ["shopping", "lifestyle"],
-  "screenshots": []
+  ]
 }
