@@ -185,14 +185,14 @@ function showAddProduct() {
         </div>
     `;
 
-    // Cloudinary Widget
+    // Cloudinary Widget (بسيط ومباشر)
     document.getElementById('uploadBtn').addEventListener('click', function() {
         const script = document.createElement('script');
         script.src = 'https://upload-widget.cloudinary.com/global/all.js';
         script.onload = () => {
             const widget = window.cloudinary.createUploadWidget(
                 {
-                    cloudName: 'YOUR_CLOUD_NAME', // ⚠️ استبدل باسم السحابة
+                    cloudName: 'dzjy5tubx',
                     uploadPreset: 'product',
                     multiple: true,
                     maxFiles: 5,
