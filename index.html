@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Exhibition | كتالوج الأثاث</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -39,7 +38,7 @@
         window.ref = ref;
         window.uploadBytes = uploadBytes;
         window.getDownloadURL = getDownloadURL;
-        console.log("✅ Firebase Ready");
+        console.log("Firebase Ready");
     </script>
 </head>
 <body>
@@ -54,7 +53,7 @@
                 </div>
             </div>
             <div class="header-search">
-                <input type="text" id="globalSearch" placeholder="🔍 ابحث عن منتج..." oninput="globalSearch()">
+                <input type="text" id="globalSearch" placeholder="ابحث عن منتج..." oninput="globalSearch()">
                 <button class="btn-search" onclick="globalSearch()">بحث</button>
             </div>
             <nav>
@@ -66,9 +65,7 @@
         </div>
     </header>
 
-    <main class="container" id="mainContent" style="min-height:60vh;padding:20px 0;">
-        <!-- سيتم تحميل المحتوى هنا -->
-    </main>
+    <main class="container" id="mainContent" style="min-height:60vh;padding:20px 0;"></main>
 
     <footer class="footer">
         <div class="container">
@@ -76,7 +73,7 @@
                 <div>
                     <h4>Modern Exhibition</h4>
                     <p>كتالوج معرض متخصص في الأثاث والألمنيوم الفاخر</p>
-                    <p style="margin-top:8px;color:#D4A85C;">📍 سوريا - دير الزور - صبيخان</p>
+                    <p style="margin-top:8px;color:#D4A85C;">سوريا - دير الزور - صبيخان</p>
                 </div>
                 <div>
                     <h4>روابط سريعة</h4>
@@ -86,13 +83,13 @@
                 </div>
                 <div>
                     <h4>معلومات</h4>
-                    <p>📍 سوريا - دير الزور - صبيخان</p>
-                    <p>📧 <a href="mailto:hg78@live.com" style="color:#D4A85C;">hg78@live.com</a></p>
-                    <p>📱 <a href="tel:+963996190945" style="color:#D4A85C;">+963 996 190 945</a></p>
+                    <p>سوريا - دير الزور - صبيخان</p>
+                    <p><a href="mailto:hg78@live.com" style="color:#D4A85C;">hg78@live.com</a></p>
+                    <p><a href="tel:+963996190945" style="color:#D4A85C;">+963 996 190 945</a></p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>© 2025 Modern Exhibition - جميع الحقوق محفوظة</p>
+                <p>2025 Modern Exhibition - جميع الحقوق محفوظة</p>
             </div>
         </div>
     </footer>
