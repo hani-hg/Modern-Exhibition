@@ -1,20 +1,20 @@
 // js/firebase-config.js
 
-// إعدادات Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
+
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "modern-exhibition.firebaseapp.com",
-    projectId: "modern-exhibition",
-    storageBucket: "modern-exhibition.firebasestorage.app",
-    messagingSenderId: "870468289709",
-    appId: "1:870468289709:web:fe0ca644c24e37f818b224"
+  apiKey: "AIzaSyDagDhybZwbnKOvnLBBARMX9-ErLw964Mo",
+  authDomain: "modern-exhibition.firebaseapp.com",
+  projectId: "modern-exhibition",
+  storageBucket: "modern-exhibition.firebasestorage.app",
+  messagingSenderId: "870468289709",
+  appId: "1:870468289709:web:fe0ca644c24e37f818b224"
 };
 
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-// تصدير الخدمات
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-console.log('✅ Firebase initialized successfully');
+export { db, storage, app };
