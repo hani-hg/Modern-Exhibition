@@ -21,7 +21,6 @@ body {
 
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-/* ===== TOP BAR ===== */
 .top-bar {
     background: var(--primary);
     color: rgba(255,255,255,0.7);
@@ -36,7 +35,6 @@ body {
 }
 .top-bar-inner span:first-child { color: var(--gold); font-weight: 600; }
 
-/* ===== HEADER ===== */
 .header {
     background: var(--primary);
     padding: 12px 0;
@@ -137,7 +135,6 @@ nav a:hover {
 .mobile-menu a:hover { color: var(--gold); }
 .mobile-menu.open { display: flex; }
 
-/* ===== QUICK ICONS (سطر متحرك) ===== */
 .quick-icons {
     background: var(--card);
     padding: 12px 0;
@@ -191,7 +188,6 @@ nav a:hover {
     color: var(--text);
 }
 
-/* ===== STATS MINI (في الأسفل) ===== */
 .stats-mini {
     display: flex;
     justify-content: space-around;
@@ -219,7 +215,6 @@ nav a:hover {
     margin: 2px 0 0;
 }
 
-/* ===== PRODUCTS ===== */
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -290,7 +285,6 @@ nav a:hover {
 }
 .btn-quote:hover { transform: scale(1.02); box-shadow: 0 8px 24px rgba(34,197,94,0.25); }
 
-/* ===== DETAIL ===== */
 .product-detail {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -328,7 +322,6 @@ nav a:hover {
 .btn-gold { background: var(--gold); color: var(--primary); }
 .btn-gold:hover { background: #b8943c; }
 
-/* ===== FORM ===== */
 .form-container { max-width: 700px; margin: 30px auto; background: var(--card); padding: 32px; border-radius: var(--radius); box-shadow: var(--shadow); }
 .form-container h2 { color: var(--primary); text-align: center; margin-bottom: 28px; }
 .form-group { margin-bottom: 18px; }
@@ -347,7 +340,6 @@ nav a:hover {
 .btn-cancel { background: #e5e7eb; color: #555; }
 .btn-cancel:hover { background: #d1d5db; }
 
-/* ===== MODAL ===== */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -388,7 +380,6 @@ nav a:hover {
 .modal-actions .btn-cancel-modal { background: #e5e7eb; color: #555; }
 .modal-actions .btn-cancel-modal:hover { background: #d1d5db; }
 
-/* ===== FOOTER ===== */
 .footer {
     background: var(--primary);
     color: #fff;
@@ -413,7 +404,6 @@ nav a:hover {
     font-size: 14px;
 }
 
-/* ===== TOAST ===== */
 .toast {
     position: fixed;
     bottom: 24px;
@@ -445,7 +435,6 @@ nav a:hover {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .top-bar-inner { flex-direction: column; text-align: center; font-size: 12px; }
     .header-inner { flex-direction: column; align-items: stretch; }
