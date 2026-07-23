@@ -34,15 +34,15 @@ async function showHome() {
         const featuredItems = allProducts.filter(p => p.featured).slice(0, 4);
 
         let html = `
-            <div class="stats-grid">
-                <div class="stat-box"><h3>${total}</h3><p>منتجات</p></div>
-                <div class="stat-box"><h3>${featuredCount}</h3><p>مميزة</p></div>
-                <div class="stat-box"><h3>${views}</h3><p>مشاهدات</p></div>
-                <div class="stat-box"><h3>${newCount}</h3><p>جديدة</p></div>
-            </div>
             ${featuredItems.length ? `<h2 style="color:var(--primary);margin:20px 0 10px;">مميزات</h2><div class="products-grid">${renderCards(featuredItems)}</div>` : ''}
             <h2 style="color:var(--primary);margin:30px 0 10px;">آخر المنتجات</h2>
             <div class="products-grid">${renderCards(latest)}</div>
+            <div class="stats-mini">
+                <div class="stat-mini"><h4>${total}</h4><p>منتجات</p></div>
+                <div class="stat-mini"><h4>${featuredCount}</h4><p>مميزة</p></div>
+                <div class="stat-mini"><h4>${views}</h4><p>مشاهدات</p></div>
+                <div class="stat-mini"><h4>${newCount}</h4><p>جديدة</p></div>
+            </div>
         `;
         content.innerHTML = html;
         animateCards();
@@ -95,6 +95,12 @@ async function showProducts() {
                 </div>
             </div>
             <div class="products-grid">${renderCards(allProducts)}</div>
+            <div class="stats-mini">
+                <div class="stat-mini"><h4>${allProducts.length}</h4><p>منتجات</p></div>
+                <div class="stat-mini"><h4>${allProducts.filter(p=>p.featured).length}</h4><p>مميزة</p></div>
+                <div class="stat-mini"><h4>${allProducts.reduce((s,p)=>s+(p.views||0),0)}</h4><p>مشاهدات</p></div>
+                <div class="stat-mini"><h4>${allProducts.filter(p=>p.condition==='جديد').length}</h4><p>جديدة</p></div>
+            </div>
         `;
         content.innerHTML = html;
         animateCards();
