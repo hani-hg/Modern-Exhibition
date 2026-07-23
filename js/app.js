@@ -168,34 +168,36 @@ function showAddProduct() {
     `;
 
     document.getElementById('uploadBtn').addEventListener('click', function() {
-        const script = document.createElement('script');
-        script.src = 'https://upload-widget.cloudinary.com/global/all.js';
-        script.onload = () => {
-            const widget = window.cloudinary.createUploadWidget(
-                {
-                    cloudName: 'dzjy5tubx',
-                    uploadPreset: 'product',
-                    multiple: true,
-                    maxFiles: 5,
-                    folder: 'products'
-                },
-                (error, result) => {
-                    if (result.event === 'success') {
-                        const url = result.info.secure_url;
-                        uploadedUrls.push(url);
-                        const preview = document.getElementById('imagePreview');
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover';
-                        img.style.borderRadius = '10px'; img.style.border = '2px solid #C9A96E';
-                        preview.appendChild(img);
-                        showToast('تم رفع الصورة', 'success');
-                    }
+        if (!window.cloudinary) {
+            showToast('جاري تحميل الأداة، حاول مرة أخرى', 'error');
+            return;
+        }
+        const widget = window.cloudinary.createUploadWidget(
+            {
+                cloudName: 'dzjy5tubx',
+                uploadPreset: 'products',
+                multiple: true,
+                maxFiles: 5,
+                folder: 'products'
+            },
+            (error, result) => {
+                if (result.event === 'success') {
+                    const url = result.info.secure_url;
+                    uploadedUrls.push(url);
+                    const preview = document.getElementById('imagePreview');
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '10px';
+                    img.style.border = '2px solid #C9A96E';
+                    preview.appendChild(img);
+                    showToast('تم رفع الصورة', 'success');
                 }
-            );
-            widget.open();
-        };
-        document.head.appendChild(script);
+            }
+        );
+        widget.open();
     });
 
     document.getElementById('productForm').addEventListener('submit', async function(e) {
@@ -324,8 +326,11 @@ async function loadProductData(id) {
         d.images.forEach(url => {
             const img = document.createElement('img');
             img.src = url;
-            img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover';
-            img.style.borderRadius = '10px'; img.style.border = '2px solid #C9A96E';
+            img.style.width = '80px';
+            img.style.height = '80px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '10px';
+            img.style.border = '2px solid #C9A96E';
             preview.appendChild(img);
         });
     }
