@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الأثاث العصري | كتالوج الأثاث</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://upload-widget.cloudinary.com/global/all.js" defer></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -43,7 +44,6 @@
 </head>
 <body>
 
-    <!-- الشريط العلوي -->
     <div class="top-bar">
         <div class="container top-bar-inner">
             <span>مرحباً بكم في الأثاث العصري</span>
@@ -51,7 +51,6 @@
         </div>
     </div>
 
-    <!-- الهيدر -->
     <header class="header">
         <div class="container header-inner">
             <div class="logo">
@@ -81,7 +80,6 @@
         </div>
     </header>
 
-    <!-- الأيقونات السريعة (سطر متحرك) -->
     <section class="quick-icons">
         <div class="container">
             <div class="quick-scroll">
@@ -113,10 +111,8 @@
         </div>
     </section>
 
-    <!-- المحتوى الرئيسي -->
     <main class="container" id="mainContent" style="min-height:60vh;padding:20px 0;"></main>
 
-    <!-- الفوتر -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
